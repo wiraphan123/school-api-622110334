@@ -1,14 +1,15 @@
 'use strict'
+
 const Database = use('Database')
 function numberTypeParamValidator(number){
     if(Number.isNaN(parseInt(number))) 
     return { error:`param: ${number} is not supported, Please use number type param.` }
         return {}
-    }
-    const Hash = use('Hash')
+}
+
+const Hash = use('Hash')
 
 class TeacherController {
-
     async index(){
         const teachers = await Database.table('teachers')
         return {status:200,error:undefined,data:teachers}
@@ -51,6 +52,32 @@ class TeacherController {
 
         return { status:200,error:undefined,data:{ first_name,last_name,email} }
     }
-}
 
+    async update({ request }){
+    const { body,params } = request
+    const { id } = params
+    const { first_name,last_name,email } = body
+
+    const teacherID = await Database
+    .table('teachers')
+    .where({ teachers_id:id })
+    .update({ first_name,last_name,email })
+
+    const teacher = await Database
+    .table('teachers')
+    .where({ teachers_id:teacherID })
+    .first()
+
+    return { status:200,error:undefined,data:teacher }
+    }
+    async destroy( { request } ){
+        const  {id} = request.params
+        const deleteTeacher = await Database
+        .table('teachers').where({ teachers_id:id })
+        .delete()
+
+        return { status:200, error:undefined, message:'success' } 
+
+    }
+}
 module.exports = TeacherController
